@@ -7,10 +7,13 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Install spotdl separately first (it bundles its own FastAPI)
+# Install latest yt-dlp FIRST (fixes YouTube download errors)
+RUN pip install --no-cache-dir -U yt-dlp
+
+# Install spotdl (will use the yt-dlp we just installed)
 RUN pip install --no-cache-dir spotdl>=4.4.0
 
-# Install our API dependencies (without FastAPI since spotdl provides it)
+# Install our API dependencies
 RUN pip install --no-cache-dir uvicorn[standard] python-multipart aiofiles
 
 # Copy application code
