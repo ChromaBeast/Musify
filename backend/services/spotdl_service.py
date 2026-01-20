@@ -33,7 +33,7 @@ class DownloadResult:
 
 class SpotDLService:
     DOWNLOADS_DIR = Path("downloads")
-    COOKIES_FILE = Path("cookies.txt")  # Place this file on VPS manually
+    COOKIES_FILE = Path("cookies.txt")
     SPOTIFY_URL_PATTERN = re.compile(
         r'^https://open\.spotify\.com/(playlist|album|track)/[a-zA-Z0-9]+(\?.*)?$'
     )
@@ -63,16 +63,23 @@ class SpotDLService:
         
         yield DownloadProgress(song_name="", status="downloading", progress=0, message="Starting...")
         
-        cmd = ["spotdl", "download", clean_url, "--output", str(output_dir), "--format", "mp3"]
+        # Use Piped as audio provider to bypass YouTube blocking
+        cmd = [
+            "spotdl", "download", clean_url,
+            "--output", str(output_dir),
+            "--format", "mp3",
+            "--audio", "piped",  # Use Piped proxy instead of direct YouTube
+        ]
         
         if self.client_id and self.client_secret:
             cmd.extend(["--client-id", self.client_id, "--client-secret", self.client_secret])
             logger.info("Using Spotify credentials")
         
-        # Use cookies if available (bypasses YouTube IP blocking)
         if self.COOKIES_FILE.exists():
             cmd.extend(["--cookie-file", str(self.COOKIES_FILE)])
-            logger.info("Using cookies.txt for YouTube auth")
+            logger.info("Using cookies.txt")
+        
+        logger.info(f"Using Piped audio provider to bypass YouTube blocking")
         
         try:
             process = await asyncio.create_subprocess_exec(*cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE)
@@ -94,7 +101,7 @@ class SpotDLService:
                 yield DownloadProgress(song_name=f.stem, status="completed", progress=100, message=f"Downloaded: {f.stem}")
             
             success = len(mp3_files) > 0
-            yield DownloadResult(job_id=job_id, success=success, output_dir=output_dir, song_count=len(mp3_files), error=None if success else "Download failed")
+            yield DownloadResult(job_id=job_id, success=success, output_dir=output_dir, song_count=len(mp3_files), error=None if success else "Download failed - all providers blocked")
             
         except Exception as e:
             logger.error(f"Error: {e}")
