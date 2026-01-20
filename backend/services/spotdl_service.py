@@ -68,7 +68,7 @@ class SpotDLService:
             "spotdl", "download", clean_url,
             "--output", str(output_dir),
             "--format", "mp3",
-            "--audio", "slider-kz",  # Use slider-kz provider (more reliable on VPS)
+            "--audio", "soundcloud",  # Use SoundCloud (less restrictive on VPS)
         ]
         
         if self.client_id and self.client_secret:
