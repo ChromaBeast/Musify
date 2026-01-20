@@ -49,3 +49,4 @@ backend/downloads/
 backend/zips/
 
 .env
+backend/cookies.txt
