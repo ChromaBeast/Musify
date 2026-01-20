@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - downloads:/app/downloads
+      - zips:/app/zips
+    restart: unless-stopped
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Get your credentials from https://developer.spotify.com/dashboard
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+
+volumes:
+  downloads:
+  zips:

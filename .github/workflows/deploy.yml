@@ -1,0 +1,36 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd ~/musify
+            git pull origin main
+            
+            # Copy .env if it doesn't exist on first deploy
+            if [ ! -f .env ]; then
+              echo "SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}" > .env
+              echo "SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}" >> .env
+            fi
+            
+            # Rebuild and restart
+            docker-compose down
+            docker-compose up -d --build
+            
+            # Cleanup old images
+            docker system prune -f
+            
+            echo "Deployed successfully!"

@@ -1,0 +1,5 @@
+# Let pip resolve dependencies automatically
+spotdl>=4.4.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+aiofiles>=24.0.0
