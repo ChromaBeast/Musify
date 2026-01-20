@@ -26,9 +26,10 @@ jobs:
               echo "SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}" >> .env
             fi
             
-            # Rebuild and restart
+            # Rebuild with no cache and restart
             docker-compose down
-            docker-compose up -d --build
+            docker-compose build --no-cache
+            docker-compose up -d
             
             # Cleanup old images
             docker system prune -f
